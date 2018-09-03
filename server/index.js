@@ -6,13 +6,53 @@ const data = require("./data/pokemon.js");
 
 // The schema should model the full data object available.
 const schema = buildSchema(`
+  type Weight {
+    minimum: String
+    maximum: String
+  }
+  type Height {
+    minimum: String
+    maximum: String
+  }
+  type EvolutionReqs {
+    amount: Int
+    name: String
+  }
+  type IdName {
+    id: Int
+    name: String
+  }
+  type SingleAttack {
+    name: String
+    type: String
+    damage: Int
+  }
+  type Attacks {
+    fast: [SingleAttack]
+    special: [SingleAttack]
+  }
+
   type Pokemon {
     id: String
     name: String!
+    classification: String
+    types: [String]
+    resistant: [String]
+    weaknesses: [String]!
+    weight: Weight
+    height: Height
+    fleeRate: Float
+    evolutionRequirements: EvolutionReqs
+    evolutions: [IdName]
+    maxCP: Int
+    maxHP: Int
+    attacks: Attacks
   }
   type Query {
     Pokemons: [Pokemon]
     Pokemon(name: String): Pokemon
+    Type(type: String): [Pokemon]
+    Resists(type: String): [Pokemon]
   }
 `);
 
@@ -23,6 +63,12 @@ const root = {
   },
   Pokemon: (request) => {
     return data.find((pokemon) => pokemon.name === request.name);
+  },
+  Type: (request) => {
+    return data.filter((pokemon) => pokemon.types.includes(request.type));
+  },
+  Resists: (request) => {
+    return data.filter((pokemon) => pokemon.resistant.includes(request.type));
   },
 };
 
